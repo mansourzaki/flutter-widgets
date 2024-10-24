@@ -630,6 +630,7 @@ class RenderGaugeRange extends RenderBox {
     }
 
     final Paint paint = Paint()
+      ..strokeCap = StrokeCap.round
       ..style = isFill ? PaintingStyle.fill : PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..color = color ?? _gaugeThemeData.rangeColor ?? const Color(0xFFF67280);
