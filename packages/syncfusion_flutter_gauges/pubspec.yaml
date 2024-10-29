@@ -9,8 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  syncfusion_flutter_core:
-    path: ../syncfusion_flutter_core
+  syncfusion_flutter_core: ^27.1.55
+    #path: ../syncfusion_flutter_core
   intl: '>=0.18.1 <0.20.0'
 
 dev_dependencies:
