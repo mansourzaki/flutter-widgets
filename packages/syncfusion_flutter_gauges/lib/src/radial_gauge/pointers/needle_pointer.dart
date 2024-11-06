@@ -36,6 +36,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
   const NeedlePointer(
       {Key? key,
       this.value = 0,
+      this.distanceFromCenter = 0,
       this.enableDragging = false,
       this.onValueChanged,
       this.onValueChangeStart,
@@ -502,6 +503,8 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
   @override
   final double value;
 
+  final double distanceFromCenter;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
     final SfGaugeThemeData gaugeTheme = SfGaugeTheme.of(context)!;
@@ -520,6 +523,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
     return RenderNeedlePointer(
         value: value.clamp(ancestor.minimum, ancestor.maximum),
         enableDragging: enableDragging,
+        distanceFromCenter: distanceFromCenter,
         onValueChanged: onValueChanged,
         onValueChangeStart: onValueChangeStart,
         onValueChangeEnd: onValueChangeEnd,
@@ -563,6 +567,7 @@ class NeedlePointer extends LeafRenderObjectWidget implements GaugePointer {
     renderObject
       ..enableDragging = enableDragging
       ..onValueChanged = onValueChanged
+      ..distanceFromCenter = distanceFromCenter
       ..onValueChangeStart = onValueChangeStart
       ..onValueChangeEnd = onValueChangeEnd
       ..onValueChanging = onValueChanging
