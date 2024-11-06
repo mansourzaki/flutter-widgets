@@ -19,6 +19,7 @@ class RenderNeedlePointer extends RenderBox {
   RenderNeedlePointer(
       {required double value,
       required this.enableDragging,
+      required this.distanceFromCenter,
       this.onValueChanged,
       this.onValueChangeStart,
       this.onValueChangeEnd,
@@ -127,6 +128,9 @@ class RenderNeedlePointer extends RenderBox {
 
   /// Whether the gauge animation enabled or not.
   bool isRadialGaugeAnimationEnabled;
+
+  /// Control distance for needle from center
+  double distanceFromCenter;
 
   /// Gets the animation controller assigned to [RenderNeedlePointer].
   AnimationController? get pointerAnimationController =>
@@ -483,9 +487,11 @@ class RenderNeedlePointer extends RenderBox {
         ? axisRenderer!.renderer!.valueToFactor(value) ??
             axisRenderer!.valueToFactor(value)
         : axisRenderer!.valueToFactor(value);
-    _angle = (currentFactor * _sweepAngle) + axisRenderer!.startAngle;
+    // _angle = (currentFactor * _sweepAngle) + axisRenderer!.startAngle;
+    _angle = (currentFactor * _sweepAngle) + axisRenderer!.startAngle - 20;
     _radian = getDegreeToRadian(_angle);
     _centerPoint = _axisCenter;
+    _centerPoint = Offset(_axisCenter.dx, _axisCenter.dy + distanceFromCenter);
   }
 
   /// Calculates the needle pointer offset
@@ -659,7 +665,7 @@ class RenderNeedlePointer extends RenderBox {
         ..color = knobStyle.color ??
             gaugeThemeData.knobColor ??
             colorScheme.onSurface[255]!;
-
+      _axisCenter = Offset(_axisCenter.dx, _axisCenter.dy + distanceFromCenter);
       canvas.drawCircle(_axisCenter, _actualCapRadius, knobPaint);
 
       if (knobStyle.borderWidth > 0) {
@@ -684,7 +690,7 @@ class RenderNeedlePointer extends RenderBox {
     if (_pointerAnimation != null && _isAnimating) {
       angle = (_sweepAngle * _pointerAnimation!.value) +
           axisRenderer!.startAngle +
-          90;
+          70;
     } else {
       angle = _angle + 90;
     }
