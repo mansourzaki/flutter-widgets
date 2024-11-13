@@ -585,7 +585,7 @@ class RenderNeedlePointer extends RenderBox {
   void drawPointer(Canvas canvas, PointerPaintingDetails pointerPaintingDetails,
       SfGaugeThemeData gaugeThemeData) {
     final double pointerRadian =
-        getDegreeToRadian(pointerPaintingDetails.pointerAngle);
+        getDegreeToRadian(pointerPaintingDetails.pointerAngle + 20);
     if (_actualNeedleLength > 0) {
       _renderNeedle(canvas, pointerRadian);
     }
@@ -710,7 +710,6 @@ class RenderNeedlePointer extends RenderBox {
     if (needsShowPointer) {
       final Offset startPosition = Offset(_startX, _startY);
       final Offset endPosition = Offset(_stopX, _stopY);
-
       final PointerPaintingDetails pointerPaintingDetails =
           PointerPaintingDetails(
               startOffset: startPosition,
