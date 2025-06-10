@@ -11,11 +11,12 @@ import 'annotation_view.dart';
 /// Represents the sticky note annotation in the page.
 class StickyNoteAnnotation extends Annotation {
   /// Initializes a new instance of [StickyNoteAnnotation] class.
-  StickyNoteAnnotation(
-      {required super.pageNumber,
-      required String text,
-      required Offset position,
-      required PdfStickyNoteIcon icon}) {
+  StickyNoteAnnotation({
+    required super.pageNumber,
+    required String text,
+    required Offset position,
+    required PdfStickyNoteIcon icon,
+  }) {
     _text = text;
     _icon = icon;
     setBounds(_getDefualtStickyNoteSize(position));
@@ -121,33 +122,33 @@ extension StickyNoteAnnotationExtension on StickyNoteAnnotation {
 class StickyNoteAnnotationView extends InteractiveGraphicsView
     with AnnotationView {
   /// Creates a [StickyNoteAnnotationView].
-  StickyNoteAnnotationView(
-      {Key? key,
-      required this.annotation,
-      this.onAnnotationMoved,
-      this.onAnnotationMoving,
-      this.onTap,
-      this.onDoubleTap,
-      bool isSelected = false,
-      bool canEdit = true,
-      Color selectorColor = defaultSelectorColor,
-      double selectorStorkeWidth = 1,
-      double heightPercentage = 1})
-      : super(
-          key: key,
-          color: annotation.color,
-          strokeWidth: 1,
-          opacity: annotation.opacity,
-          isSelected: isSelected,
-          selectorColor: selectorColor,
-          canMove: canEdit,
-          selectorStorkeWidth: selectorStorkeWidth,
-        ) {
-    _heightPercentage = heightPercentage;
+  StickyNoteAnnotationView({
+    Key? key,
+    required this.annotation,
+    this.onAnnotationMoved,
+    this.onAnnotationMoving,
+    this.onTap,
+    this.onDoubleTap,
+    bool isSelected = false,
+    bool canEdit = true,
+    Color selectorColor = defaultSelectorColor,
+    double selectorStorkeWidth = 1,
+    double zoomLevel = 1,
+  }) : super(
+         key: key,
+         color: annotation.color,
+         strokeWidth: 1,
+         opacity: annotation.opacity,
+         isSelected: isSelected,
+         selectorColor: selectorColor,
+         canMove: canEdit,
+         selectorStorkeWidth: selectorStorkeWidth,
+       ) {
+    _zoomLevel = zoomLevel;
   }
 
-  /// Height percentage of the pdf page.
-  late final double _heightPercentage;
+  /// Zoom level of the pdf page.
+  late final double _zoomLevel;
 
   /// Called when the annotation is moved.
   final AnnotationMoveEndedCallback? onAnnotationMoved;
@@ -170,7 +171,7 @@ class StickyNoteAnnotationView extends InteractiveGraphicsView
       isSelected: isSelected,
       selectorColor: selectorColor,
       selectorStorkeWidth: selectorStorkeWidth,
-      heightPercentage: _heightPercentage,
+      zoomLevel: _zoomLevel,
       onAnnotationMoved: onAnnotationMoved,
       onAnnotationMoving: onAnnotationMoving,
       onDoubleTap: onDoubleTap,
@@ -179,11 +180,13 @@ class StickyNoteAnnotationView extends InteractiveGraphicsView
   }
 
   @override
-  void updateRenderObject(BuildContext context,
-      covariant RenderInteractiveGraphicsView renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderInteractiveGraphicsView renderObject,
+  ) {
     if (renderObject is RenderStickyNoteAnnotationView) {
       renderObject
-        ..heightPercentage = _heightPercentage
+        ..zoomLevel = _zoomLevel
         ..selectorStorkeWidth = selectorStorkeWidth
         ..onAnnotationMoved = onAnnotationMoved
         ..onAnnotationMoving = onAnnotationMoving
@@ -211,42 +214,43 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
     this.onAnnotationMoving,
     VoidCallback? onTap,
     void Function()? onDoubleTap,
-    double heightPercentage = 1,
-  })  : _onDoubleTap = onDoubleTap,
-        super(
-          strokeColor: color,
-          opacity: opacity,
-          strokeWidth: 1,
-          isSelected: isSelected,
-          selectorColor: selectorColor,
-          selectorStorkeWidth: selectorStorkeWidth,
-        ) {
+    double zoomLevel = 1,
+  }) : _onDoubleTap = onDoubleTap,
+       super(
+         strokeColor: color,
+         opacity: opacity,
+         strokeWidth: 1,
+         isSelected: isSelected,
+         selectorColor: selectorColor,
+         selectorStorkeWidth: selectorStorkeWidth,
+       ) {
     _onTap = onTap;
-    _heightPercentage = heightPercentage;
+    _zoomLevel = zoomLevel;
     _selectorStorkeWidth = selectorStorkeWidth;
 
     _doubleTapGestureRecognizer = DoubleTapGestureRecognizer()
       ..onDoubleTap = _onDoubleTap
       ..gestureSettings = const DeviceGestureSettings(touchSlop: 0.0);
-    super.tapGestureRecognizer.gestureSettings =
-        const DeviceGestureSettings(touchSlop: 0.0);
+    super.tapGestureRecognizer.gestureSettings = const DeviceGestureSettings(
+      touchSlop: 0.0,
+    );
     _strokePath = Path();
     _fillPath = Path();
   }
 
-  late double _heightPercentage;
+  late double _zoomLevel;
   late DoubleTapGestureRecognizer _doubleTapGestureRecognizer;
   late Path _fillPath;
   late Path _strokePath;
   late double _selectorStorkeWidth;
 
-  /// The height percentage.
-  double get heightPercentage => _heightPercentage;
-  set heightPercentage(double value) {
-    if (_heightPercentage == value) {
+  /// The zoom level
+  double get zoomLevel => _zoomLevel;
+  set zoomLevel(double value) {
+    if (_zoomLevel == value) {
       return;
     }
-    _heightPercentage = value;
+    _zoomLevel = value;
     markNeedsPaint();
   }
 
@@ -293,9 +297,10 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
   Rect _getPaintRect(Rect rect, Offset offset) {
     final Rect localRect = rect.translate(-_bounds.left, -_bounds.top);
     final Offset globalOffset = Offset(
-        offset.dx + localRect.left / heightPercentage,
-        offset.dy + localRect.top / heightPercentage);
-    return globalOffset & (localRect.size / heightPercentage);
+      offset.dx + (localRect.left / zoomLevel),
+      offset.dy + (localRect.top / zoomLevel),
+    );
+    return globalOffset & (localRect.size / zoomLevel);
   }
 
   void _applyRotationTransform(Canvas canvas, int rotation, Offset offset) {
@@ -309,19 +314,20 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
 
   void _drawStickyNoteIcon(Canvas canvas, Offset offset) {
     final Paint fillPaint = Paint();
-    fillPaint.color = color.withOpacity(opacity);
+    fillPaint.color = color.withValues(alpha: opacity);
     fillPaint.style = PaintingStyle.fill;
 
     final Paint strokePaint = Paint()
-      ..color = Colors.black.withOpacity(opacity)
+      ..color = Colors.black.withValues(alpha: opacity)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
     final Rect paintRect = _getPaintRect(
-        stickyNoteAnnotation.isSelected
-            ? stickyNoteAnnotation.intermediateBounds
-            : stickyNoteAnnotation.boundingBox,
-        offset);
+      stickyNoteAnnotation.isSelected
+          ? stickyNoteAnnotation.intermediateBounds
+          : stickyNoteAnnotation.boundingBox,
+      offset,
+    );
     canvas.save();
 
     _fillPath.reset();
@@ -500,7 +506,9 @@ class RenderStickyNoteAnnotationView extends RenderInteractiveGraphicsView {
     final Rect iconRect = fillRect.expandToInclude(strokeRect);
 
     canvas.scale(
-        paintRect.width / iconRect.width, paintRect.height / iconRect.height);
+      paintRect.width / iconRect.width,
+      paintRect.height / iconRect.height,
+    );
 
     canvas.drawPath(_fillPath, fillPaint);
     canvas.drawPath(_strokePath, strokePaint);

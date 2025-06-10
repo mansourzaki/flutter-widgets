@@ -43,9 +43,12 @@ class PdfCheckboxFormField extends PdfFormField {
 /// Helper class for [PdfCheckboxFormField].
 class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
   /// Initializes a new instance of the [PdfCheckboxFormFieldHelper] class.
-  PdfCheckboxFormFieldHelper(this.pdfCheckboxField, int pageIndex,
-      {this.pdfCheckBoxItem, this.onValueChanged})
-      : super(pdfCheckboxField, pageIndex) {
+  PdfCheckboxFormFieldHelper(
+    this.pdfCheckboxField,
+    int pageIndex, {
+    this.pdfCheckBoxItem,
+    this.onValueChanged,
+  }) : super(pdfCheckboxField, pageIndex) {
     bounds = pdfCheckboxField.bounds;
   }
 
@@ -94,8 +97,13 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
       final bool oldValue = checkboxFormField._isChecked;
       setCheckboxValue(newValue!);
       if (onValueChanged != null) {
-        onValueChanged!(PdfFormFieldValueChangedDetails(
-            checkboxFormField, oldValue, newValue));
+        onValueChanged!(
+          PdfFormFieldValueChangedDetails(
+            checkboxFormField,
+            oldValue,
+            newValue,
+          ),
+        );
       }
       rebuild();
     }
@@ -116,9 +124,11 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
   void _updateChildItems() {
     if (checkboxFormField._children != null &&
         checkboxFormField._children!.isNotEmpty) {
-      for (int index = 0;
-          index < checkboxFormField._children!.length;
-          index++) {
+      for (
+        int index = 0;
+        index < checkboxFormField._children!.length;
+        index++
+      ) {
         final PdfCheckboxFormFieldHelper helper =
             PdfFormFieldHelper.getHelper(checkboxFormField._children![index])
                 as PdfCheckboxFormFieldHelper;
@@ -149,16 +159,22 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
         selectionPadding: selectionPadding,
         fillColor: pdfCheckboxField.backColor.isEmpty
             ? const Color.fromARGB(255, 221, 228, 255)
-            : Color.fromRGBO(pdfCheckboxField.backColor.r,
-                pdfCheckboxField.backColor.g, pdfCheckboxField.backColor.b, 1),
+            : Color.fromRGBO(
+                pdfCheckboxField.backColor.r,
+                pdfCheckboxField.backColor.g,
+                pdfCheckboxField.backColor.b,
+                1,
+              ),
         borderColor: pdfCheckboxField.borderColor.isEmpty
             ? Colors.transparent
             : Color.fromRGBO(
                 pdfCheckboxField.borderColor.r,
                 pdfCheckboxField.borderColor.g,
                 pdfCheckboxField.borderColor.b,
-                1),
-        borderWidth: (pdfCheckboxField.borderWidth == 0
+                1,
+              ),
+        borderWidth:
+            (pdfCheckboxField.borderWidth == 0
                 ? 1
                 : pdfCheckboxField.borderWidth) /
             heightPercentage,
@@ -171,18 +187,18 @@ class PdfCheckboxFormFieldHelper extends PdfFormFieldHelper {
 /// Customized checkbox
 class PdfCheckbox extends StatefulWidget {
   /// Constructor of PdfCheckbox
-  const PdfCheckbox(
-      {Key? key,
-      required this.isChecked,
-      required this.onChanged,
-      this.readOnly = false,
-      required this.heightPercentage,
-      required this.selectionPadding,
-      required this.fillColor,
-      required this.borderColor,
-      required this.borderWidth,
-      this.size = 24.0})
-      : super(key: key);
+  const PdfCheckbox({
+    Key? key,
+    required this.isChecked,
+    required this.onChanged,
+    this.readOnly = false,
+    required this.heightPercentage,
+    required this.selectionPadding,
+    required this.fillColor,
+    required this.borderColor,
+    required this.borderWidth,
+    this.size = 24.0,
+  }) : super(key: key);
 
   /// Checkbox padding
   final double selectionPadding;
@@ -233,8 +249,9 @@ class _PdfCheckboxState extends State<PdfCheckbox> {
         });
       },
       child: Padding(
-        padding:
-            EdgeInsets.all(widget.selectionPadding / widget.heightPercentage),
+        padding: EdgeInsets.all(
+          widget.selectionPadding / widget.heightPercentage,
+        ),
         child: Container(
           width: widget.size,
           height: widget.size,
