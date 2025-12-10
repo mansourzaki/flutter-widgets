@@ -178,7 +178,8 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
       ..renderer = renderer
       ..imageStream =
           axis.backgroundImage?.resolve(createLocalImageConfiguration(context))
-      ..backgroundImage = axis.backgroundImage;
+      ..backgroundImage = axis.backgroundImage
+      ..circleTicks = axis.circleTicks;
     super.updateRenderObject(context, renderObject);
   }
 }
@@ -188,7 +189,6 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Creates a object for [RenderRadialAxis].
   RenderRadialAxisWidget(
       {required double startAngle,
-      required bool circleTicks,
       required double endAngle,
       required double radiusFactor,
       required double centerX,
@@ -242,7 +242,8 @@ class RenderRadialAxisWidget extends RenderBox {
       Animation<double>? axisLineAnimation,
       ImageStream? imageStream,
       required ValueNotifier<int> repaintNotifier,
-      ImageProvider? backgroundImage})
+      ImageProvider? backgroundImage,
+      required bool circleTicks})
       : _startAngle = startAngle,
         _endAngle = endAngle,
         _radiusFactor = radiusFactor,
@@ -297,7 +298,8 @@ class RenderRadialAxisWidget extends RenderBox {
         _repaintNotifier = repaintNotifier,
         _themeData = themeData,
         _colorScheme = colorScheme,
-        _backgroundImage = backgroundImage {
+        _backgroundImage = backgroundImage,
+        _circleTicks = circleTicks {
     _isLabelsOutside = labelPosition == ElementsPosition.outside;
     _isTicksOutside = tickPosition == ElementsPosition.outside;
     _imageStreamListener = ImageStreamListener(_updateBackgroundImage);
@@ -702,6 +704,17 @@ class RenderRadialAxisWidget extends RenderBox {
     }
 
     _tickOffset = value;
+    _updatePaint();
+  }
+
+  bool get circleTicks => _circleTicks;
+
+  set circleTicks(bool value) {
+    if (value == _circleTicks) {
+      return;
+    }
+
+    _circleTicks = value;
     _updatePaint();
   }
 
