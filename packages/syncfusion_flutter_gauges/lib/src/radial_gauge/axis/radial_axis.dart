@@ -39,46 +39,47 @@ class RadialAxis extends StatefulWidget {
   /// [tickOffset] and [labelOffset] must not be null.
   /// Additionally [centerX], [centerY] must be non-negative
   /// and [maximum] must be greater than [minimum].
-  RadialAxis(
-      {Key? key,
-      this.startAngle = 130,
-      this.endAngle = 50,
-      this.radiusFactor = 0.95,
-      this.centerX = 0.5,
-      this.centerY = 0.5,
-      this.onLabelCreated,
-      this.onAxisTapped,
-      this.canRotateLabels = false,
-      this.showFirstLabel = true,
-      this.showLastLabel = false,
-      this.canScaleToFit = false,
-      this.backgroundImage,
-      this.ranges,
-      this.pointers,
-      this.annotations,
-      this.minimum = 0,
-      this.maximum = 100,
-      this.interval,
-      this.minorTicksPerInterval = 1,
-      this.showLabels = true,
-      this.showAxisLine = true,
-      this.showTicks = true,
-      this.tickOffset = 0,
-      this.labelOffset = 15,
-      this.isInversed = false,
-      this.maximumLabels = 3,
-      this.useRangeColorForAxis = false,
-      this.labelFormat,
-      NumberFormat? numberFormat,
-      this.onCreateAxisRenderer,
-      this.ticksPosition = ElementsPosition.inside,
-      this.labelsPosition = ElementsPosition.inside,
-      this.offsetUnit = GaugeSizeUnit.logicalPixel,
-      GaugeTextStyle? axisLabelStyle,
-      AxisLineStyle? axisLineStyle,
-      MajorTickStyle? majorTickStyle,
-      MinorTickStyle? minorTickStyle})
-      : assert(
+  RadialAxis({
+    Key? key,
+    this.startAngle = 130,
+    this.endAngle = 50,
+    this.radiusFactor = 0.95,
+    this.centerX = 0.5,
+    this.centerY = 0.5,
+    this.onLabelCreated,
+    this.onAxisTapped,
+    this.canRotateLabels = false,
+    this.showFirstLabel = true,
+    this.showLastLabel = false,
+    this.canScaleToFit = false,
+    this.backgroundImage,
+    this.ranges,
+    this.pointers,
+    this.annotations,
+    this.minimum = 0,
+    this.maximum = 100,
+    this.interval,
+    this.minorTicksPerInterval = 1,
+    this.showLabels = true,
+    this.showAxisLine = true,
+    this.showTicks = true,
+    this.tickOffset = 0,
+    this.labelOffset = 15,
+    this.isInversed = false,
+    this.maximumLabels = 3,
+    this.useRangeColorForAxis = false,
+    this.labelFormat,
+    NumberFormat? numberFormat,
+    this.onCreateAxisRenderer,
+    this.ticksPosition = ElementsPosition.inside,
+    this.labelsPosition = ElementsPosition.inside,
+    this.offsetUnit = GaugeSizeUnit.logicalPixel,
+    GaugeTextStyle? axisLabelStyle,
+    AxisLineStyle? axisLineStyle,
+    MajorTickStyle? majorTickStyle,
+    MinorTickStyle? minorTickStyle,
+    this.circleTicks = true,
+  })  : assert(
             radiusFactor >= 0, 'Radius factor must be a non-negative value.'),
         assert(centerX >= 0, 'Center X must be a non-negative value.'),
         assert(centerY >= 0, 'Center Y must be a non-negative value.'),
@@ -830,6 +831,8 @@ class RadialAxis extends StatefulWidget {
   // ignore: strict_raw_type
   final GaugeAxisRendererFactory? onCreateAxisRenderer;
 
+  final bool circleTicks;
+
   @override
   State<StatefulWidget> createState() => _RadialAxisState();
 }
@@ -1019,7 +1022,8 @@ class _RadialAxisState extends State<RadialAxis> with TickerProviderStateMixin {
         isRadialGaugeAnimationEnabled: _enableAnimation,
         repaintNotifier: _repaintNotifier,
         animation: _axisAnimation,
-        child: RadialAxisRenderObjectWidget(axis: widget)));
+        child: RadialAxisRenderObjectWidget(
+            axis: widget, circleTicks: widget.circleTicks)));
 
     if (widget.ranges != null) {
       for (int i = 0; i < widget.ranges!.length; i++) {

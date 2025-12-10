@@ -20,10 +20,13 @@ import '../styles/radial_tick_style.dart';
 /// Radial Axis widget.
 class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
   ///Creates a object for [RadialAxisWidget].
-  const RadialAxisRenderObjectWidget({super.key, required this.axis});
+  const RadialAxisRenderObjectWidget(
+      {super.key, required this.axis, required this.circleTicks});
 
   /// Radial axis widget.
   final RadialAxis axis;
+
+  final bool circleTicks;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -44,6 +47,7 @@ class RadialAxisRenderObjectWidget extends LeafRenderObjectWidget {
 
     return RenderRadialAxisWidget(
         startAngle: axis.startAngle,
+        circleTicks: circleTicks,
         endAngle: axis.endAngle,
         radiusFactor: axis.radiusFactor,
         centerX: axis.centerX,
@@ -184,6 +188,7 @@ class RenderRadialAxisWidget extends RenderBox {
   /// Creates a object for [RenderRadialAxis].
   RenderRadialAxisWidget(
       {required double startAngle,
+      required bool circleTicks,
       required double endAngle,
       required double radiusFactor,
       required double centerX,
@@ -332,6 +337,7 @@ class RenderRadialAxisWidget extends RenderBox {
   late Offset _axisCenter;
   late double _axisOffset;
   late Size _axisSize;
+  late bool _circleTicks;
 
   /// Axis path.
   Path axisPath = Path();
@@ -2411,7 +2417,7 @@ class RenderRadialAxisWidget extends RenderBox {
     bool isFill,
   ) {
     final Paint paint = Paint()
-      ..strokeCap = StrokeCap.round
+      ..strokeCap = _circleTicks ? StrokeCap.round : StrokeCap.butt
       ..color = axisLineColor ??
           _gaugeThemeData.axisLineColor ??
           colorScheme.onSurface[35]!
@@ -2503,9 +2509,12 @@ class RenderRadialAxisWidget extends RenderBox {
 
     if (_actualMajorTickLength > 0 && majorTickThickness > 0) {
       final Paint tickPaint = Paint()
-        ..style = PaintingStyle.fill // Fill to make it a solid circle
-        ..strokeWidth =
-            minorTickThickness; // Thickness will determine the circle size
+        ..style = _circleTicks
+            ? PaintingStyle.stroke
+            : PaintingStyle.fill // Fill to make it a solid circle
+        ..strokeWidth = _circleTicks
+            ? majorTickThickness
+            : minorTickThickness; // Thickness will determine the circle size
       for (int i = 0; i < length; i++) {
         final TickOffset tickOffset = _majorTickOffsets[i];
         if (!(i == 0 && _sweepAngle == 360)) {
@@ -2518,40 +2527,42 @@ class RenderRadialAxisWidget extends RenderBox {
                   _gaugeThemeData.majorTickColor ??
                   colorSchemeMajorTickColor;
 
-          final double circleRadius =
-              minorTickThickness / 2; // Adjust radius as needed
-          canvas.drawCircle(tickOffset.startPoint, circleRadius, tickPaint);
-
-          // if (majorTickDashArray != null && majorTickDashArray!.isNotEmpty) {
-          //   final Path path = Path()
-          //     ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
-          //     ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
-          //   canvas.drawPath(
-          //       dashPath(path,
-          //           dashArray:
-          //               CircularIntervalList<double>(majorTickDashArray!)),
-          //       tickPaint);
-          // } else {
-          //   if ((i == _majorTickOffsets.length - 1) && _sweepAngle == 360) {
-          //     // Reposition the last tick when its sweep angle is 360
-          //     final double x1 = (_majorTickOffsets[0].startPoint.dx +
-          //             _majorTickOffsets[i].startPoint.dx) /
-          //         2;
-          //     final double y1 = (_majorTickOffsets[0].startPoint.dy +
-          //             _majorTickOffsets[i].startPoint.dy) /
-          //         2;
-          //     final double x2 = (_majorTickOffsets[0].endPoint.dx +
-          //             _majorTickOffsets[i].endPoint.dx) /
-          //         2;
-          //     final double y2 = (_majorTickOffsets[0].endPoint.dy +
-          //             _majorTickOffsets[i].endPoint.dy) /
-          //         2;
-          //     canvas.drawLine(Offset(x1, y1), Offset(x2, y2), tickPaint);
-          //   } else {
-          //     canvas.drawLine(
-          //         tickOffset.startPoint, tickOffset.endPoint, tickPaint);
-          //   }
-          // }
+          if (_circleTicks) {
+            final double circleRadius =
+                minorTickThickness / 2; // Adjust radius as needed
+            canvas.drawCircle(tickOffset.startPoint, circleRadius, tickPaint);
+          } else {
+            if (majorTickDashArray != null && majorTickDashArray!.isNotEmpty) {
+              final Path path = Path()
+                ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
+                ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
+              canvas.drawPath(
+                  dashPath(path,
+                      dashArray:
+                          CircularIntervalList<double>(majorTickDashArray!)),
+                  tickPaint);
+            } else {
+              if ((i == _majorTickOffsets.length - 1) && _sweepAngle == 360) {
+                // Reposition the last tick when its sweep angle is 360
+                final double x1 = (_majorTickOffsets[0].startPoint.dx +
+                        _majorTickOffsets[i].startPoint.dx) /
+                    2;
+                final double y1 = (_majorTickOffsets[0].startPoint.dy +
+                        _majorTickOffsets[i].startPoint.dy) /
+                    2;
+                final double x2 = (_majorTickOffsets[0].endPoint.dx +
+                        _majorTickOffsets[i].endPoint.dx) /
+                    2;
+                final double y2 = (_majorTickOffsets[0].endPoint.dy +
+                        _majorTickOffsets[i].endPoint.dy) /
+                    2;
+                canvas.drawLine(Offset(x1, y1), Offset(x2, y2), tickPaint);
+              } else {
+                canvas.drawLine(
+                    tickOffset.startPoint, tickOffset.endPoint, tickPaint);
+              }
+            }
+          }
         }
       }
     }
@@ -2583,23 +2594,26 @@ class RenderRadialAxisWidget extends RenderBox {
             : minorTickColor ??
                 _gaugeThemeData.minorTickColor ??
                 colorSchemeMinorTickColor;
-
+        if (_circleTicks) {
+          final double circleRadius =
+              minorTickThickness / 2; // Adjust radius as needed
+          canvas.drawCircle(tickOffset.startPoint, circleRadius, tickPaint);
+        } else {
+          if (minorTickDashArray != null && minorTickDashArray!.isNotEmpty) {
+            final Path path = Path()
+              ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
+              ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
+            canvas.drawPath(
+                dashPath(path,
+                    dashArray:
+                        CircularIntervalList<double>(minorTickDashArray!)),
+                tickPaint);
+          } else {
+            canvas.drawLine(
+                tickOffset.startPoint, tickOffset.endPoint, tickPaint);
+          }
+        }
         // Draw a circle instead of a line
-        final double circleRadius =
-            minorTickThickness / 2; // Adjust radius as needed
-        canvas.drawCircle(tickOffset.startPoint, circleRadius, tickPaint);
-        // if (minorTickDashArray != null && minorTickDashArray!.isNotEmpty) {
-        //   final Path path = Path()
-        //     ..moveTo(tickOffset.startPoint.dx, tickOffset.startPoint.dy)
-        //     ..lineTo(tickOffset.endPoint.dx, tickOffset.endPoint.dy);
-        //   canvas.drawPath(
-        //       dashPath(path,
-        //           dashArray: CircularIntervalList<double>(minorTickDashArray!)),
-        //       tickPaint);
-        // } else {
-        //   canvas.drawLine(
-        //       tickOffset.startPoint, tickOffset.endPoint, tickPaint);
-        // }
       }
     }
   }
